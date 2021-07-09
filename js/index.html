@@ -9,70 +9,50 @@
         <script>
 
         window.addEventListener('load', function () {
-        alert("It's loaded!")
         let memory = null;
-         let global = null;
-         let zoom = 1.0;
-         const width = 1000;
-         const height = 1000;
-         var buffer = new ArrayBuffer(width * height * 4);
-         let arr = new Uint8ClampedArray(buffer, 0, width * height * 4);
-         const canvas = document.getElementById('canvas');
-         const ctx = canvas.getContext('2d');
-         let imageData = new ImageData(arr, width);
-         var button = document.getElementById('run');
-         button.value = 'Run JS';
-         button.addEventListener('click', function() {
-                 setInterval(function () {
-                     console.log('TICK!');
-                     let t = performance.now();
-                     mandelbrotJS(arr, width, height, zoom, -0.7465, 0.105025);
-                     console.info('time', performance.now() - t, zoom);
-                     ctx.putImageData(imageData, 0, 0);
-                     zoom = zoom * 1.1;
-                     if (zoom > 10000) {
-                         zoom = 1.0;
-                     }
-                 }, 0);
-             }, false);            
+        let global = null;
+        const width = 1000;
+        const height = 1000;
+        var buffer = new ArrayBuffer(width * height * 4);
+        let arr = new Uint8ClampedArray(buffer, 0, width * height * 4);
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let imageData = new ImageData(arr, width);
+        var button = document.getElementById('run');
+        var t = performance.now();
+        var screens = 0;
+        button.addEventListener('click', function() {
+                setInterval(function () {
+                    console.log('TICK!');
+                    rectangle(arr, width, height);
+                    screens +=1;
+                    console.info('time', performance.now() - t, screens);
+                    ctx.putImageData(imageData, 0, 0);
+                }, 0);
+            }, false);            
         })
  
-     
- 
-         function mandelbrotJS(pixels, w, h, magnify, offsetX, offsetY)
+         function rectangle(pixels, w, h)
          {
-             let x,xx,y,cx,cy;
-             let iteration,hx,hy;
-             let itermax = 100;		/* how many iterations to do	*/
-             let hxres = w;		/* horizonal resolution		*/
-             let hyres = h;		/* vertical resolution		*/
- 
-             for (hy=0;hy<=hyres;hy++)  {
-                 for (hx=0;hx<=hxres;hx++)  {
-                     cx = ((hx*1.0)/(hxres*1.0)-0.5)/magnify*3.0+offsetX;
-                     cy = ((hy*1.0)/(hyres*1.0)-0.5)/magnify*3.0-offsetY;
-                     x = 0.0; y = 0.0;
-                     for (iteration=1;iteration<itermax;iteration++)  {
-                         xx = x*x-y*y+cx;
-                         y = 2.0*x*y+cy;
-                         x = xx;
-                         if (x*x+y*y>100.0)  iteration = 999999;
-                     }
-                     let n = (hy * hxres) + hx;
-                     if (iteration < 10000) {
-                         pixels[n * 4] = 255;
-                         pixels[(n * 4) + 1] = 0xff;
-                         pixels[(n * 4) + 2] = 0;
-                         pixels[(n * 4) + 3] = 0;
-                     } else { 
-                         pixels[n * 4] = 0;
-                         pixels[(n * 4) + 1] = 0;
-                         pixels[(n * 4) + 2] = 0;
-                         pixels[(n * 4) + 3] = 255;
-                     }
+             start_w = Math.floor(Math.random() * w);
+             end_w = Math.floor(Math.random() * w);
+             start_h = Math.floor(Math.random() * h);
+             end_h = Math.floor(Math.random() * h);
+
+             if (start_w > end_w) [start_w, end_w] = [end_w, start_w];
+             if (start_h > end_h) [start_h, end_h] = [end_h, start_h];
+             let colr = Math.floor(Math.random() * 255);
+             let colg = Math.floor(Math.random() * 255);
+             let colb = Math.floor(Math.random() * 255); 
+             for (hy=start_h;hy<=end_h;hy++)  {
+                 for (wx=start_w;wx<=end_w;wx++)  {
+                    let n = (hy * h) + wx;
+                    pixels[n * 4] = colr;
+                    pixels[(n * 4) + 1] = colg;
+                    pixels[(n * 4) + 2] = colb;
+                    pixels[(n * 4) + 3] = 255;
                  }
              }
- 
              return pixels;
          }
 
@@ -81,6 +61,6 @@
     <body>
         <input type="button" id="run" value="launch"/>
         <br/>
-        <canvas id="canvas" width="600" height="600"></canvas>
+        <canvas id="canvas" width="1000" height="1000"></canvas>
     </body>
 </html>
